@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
-import pickle
+import requests
 
-# Chargement du modèle
-model = pickle.load(open('churn_model.pkl', 'rb'))
+# URL du backend FastAPI déployé sur Render (modifiez ceci avec l'URL réelle de votre API)
+API_URL = "https://project1-hjib.onrender.com/predict"
 
 st.set_page_config(page_title="Prédiction du Churn Client", page_icon=":bar_chart:", layout="wide")
 
@@ -37,37 +37,41 @@ with col2:
     TotalCharges = st.number_input("Total Charges")
 
 # Création d'un dataframe à partir des saisies
-input_data = pd.DataFrame({
-    'gender': [gender],
-    'SeniorCitizen': [SeniorCitizen],
-    'Partner': [Partner],
-    'Dependents': [Dependents],
-    'tenure': [tenure],
-    'PhoneService': [PhoneService],
-    'MultipleLines': [MultipleLines],
-    'InternetService': [InternetService],
-    'OnlineSecurity': [OnlineSecurity],
-    'OnlineBackup': [OnlineBackup],
-    'DeviceProtection': [DeviceProtection],
-    'TechSupport': [TechSupport],
-    'StreamingTV': [StreamingTV],
-    'StreamingMovies': [StreamingMovies],
-    'Contract': [Contract],
-    'PaperlessBilling': [PaperlessBilling],
-    'PaymentMethod': [PaymentMethod],
-    'MonthlyCharges': [MonthlyCharges],
-    'TotalCharges': [TotalCharges]
-})
+input_data = {
+    'gender': gender,
+    'SeniorCitizen': SeniorCitizen,
+    'Partner': Partner,
+    'Dependents': Dependents,
+    'tenure': tenure,
+    'PhoneService': PhoneService,
+    'MultipleLines': MultipleLines,
+    'InternetService': InternetService,
+    'OnlineSecurity': OnlineSecurity,
+    'OnlineBackup': OnlineBackup,
+    'DeviceProtection': DeviceProtection,
+    'TechSupport': TechSupport,
+    'StreamingTV': StreamingTV,
+    'StreamingMovies': StreamingMovies,
+    'Contract': Contract,
+    'PaperlessBilling': PaperlessBilling,
+    'PaymentMethod': PaymentMethod,
+    'MonthlyCharges': MonthlyCharges,
+    'TotalCharges': TotalCharges
+}
 
 # Prédiction
 if st.button("Prédire"):
-    prediction = model.predict(input_data)[0]
-    if prediction < 0.33:
-        st.success("Le client n'est pas susceptible de vous quitter.")
-    elif 0.33 <= prediction < 0.67:
-        st.warning("Le client a un risque moyen de vous quitter.")
+    response = requests.post(API_URL, json=input_data)
+    if response.status_code == 200:
+        prediction = response.json()["prediction"]
+        if prediction < 0.33:
+            st.success("Le client n'est pas susceptible de vous quitter.")
+        elif 0.33 <= prediction < 0.67:
+            st.warning("Le client a un risque moyen de vous quitter.")
+        else:
+            st.error("Le client est susceptible de vous quitter.")
     else:
-        st.error("Le client est susceptible de vous quitter.")
+        st.error("Erreur lors de la prédiction. Veuillez réessayer.")
 
 # Sidebar
 st.sidebar.write("**Mes Coordonnées :**")
