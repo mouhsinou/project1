@@ -2,9 +2,6 @@ import streamlit as st
 import pandas as pd
 import requests
 
-# URL du backend FastAPI déployé sur Render (modifiez ceci avec l'URL réelle de votre API)
-API_URL = "https://project1-hjib.onrender.com/predict"
-
 st.set_page_config(page_title="Prédiction du Churn Client", page_icon=":bar_chart:", layout="wide")
 
 st.title("Prédiction du Comportement d'un Client")
@@ -61,17 +58,14 @@ input_data = {
 
 # Prédiction
 if st.button("Prédire"):
-    response = requests.post(API_URL, json=input_data)
-    if response.status_code == 200:
-        prediction = response.json()["prediction"]
-        if prediction < 0.33:
-            st.success("Le client n'est pas susceptible de vous quitter.")
-        elif 0.33 <= prediction < 0.67:
-            st.warning("Le client a un risque moyen de vous quitter.")
-        else:
-            st.error("Le client est susceptible de vous quitter.")
+    response = requests.post("https://votre-backend-fastapi.onrender.com/predict", json=input_data)
+    prediction = response.json()["prediction"]
+    if prediction < 0.33:
+        st.success("Le client n'est pas susceptible de vous quitter.")
+    elif 0.33 <= prediction < 0.67:
+        st.warning("Le client a un risque moyen de vous quitter.")
     else:
-        st.error("Erreur lors de la prédiction. Veuillez réessayer.")
+        st.error("Le client est susceptible de vous quitter.")
 
 # Sidebar
 st.sidebar.write("**Mes Coordonnées :**")

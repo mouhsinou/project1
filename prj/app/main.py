@@ -5,7 +5,7 @@ import pickle
 app = FastAPI()
 
 # Chargement du modèle
-model = pickle.load(open('churn_model.pkl', 'rb'))
+model = pickle.load(open('app/churn_model.pkl', 'rb'))
 
 @app.post('/predict')
 def predict(data: dict):
